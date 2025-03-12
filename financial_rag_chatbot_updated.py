@@ -129,16 +129,4 @@ if query:
             max_context_length = 512  # Adjust based on the model's max sequence length
             context = " ".join(retrieved_chunks)[:max_context_length]
             prompt = f"""
-            Question: {query}
-            Context: {context}
-            Based on the context above, answer the question concisely and accurately.
-            Answer:
-            """
-            response = generate_response(prompt, max_length=100)
-            
-            # Display response
-            st.write("**Answer:**", response)
-        else:
-            st.error("Financial statements not found. Please download them first.")
-    else:
-        st.warning("Please enter a stock ticker first.")
+            You are a financial analyst. Your task is
