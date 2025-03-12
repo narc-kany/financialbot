@@ -39,13 +39,19 @@ def download_financial_statements(ticker):
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "distilgpt2"  # Smaller and faster model
+llm_model = "gpt2"  # Smaller and widely available model
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
 # Function to generate response using LLM
 def generate_response(prompt, max_length=100):
     inputs = tokenizer(prompt, return_tensors="pt")
+    input_length = inputs["input_ids"].shape[1]
+    
+    # Ensure max_length is greater than input length
+    if max_length <= input_length:
+        max_length = input_length + 50  # Add some buffer for generation
+    
     outputs = llm.generate(inputs["input_ids"], max_length=max_length, num_return_sequences=1)
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return response
@@ -105,7 +111,8 @@ if query:
             retrieved_chunks = hybrid_retrieval(query, chunks, top_k=3)
             
             # Generate response using LLM
-            context = " ".join(retrieved_chunks)
+            max_context_length = 512  # Adjust based on the model's max sequence length
+            context = " ".join(retrieved_chunks)[:max_context_length]
             prompt = f"Question: {query}\nContext: {context}\nAnswer:"
             response = generate_response(prompt, max_length=100)
             
