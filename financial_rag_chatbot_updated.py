@@ -5,7 +5,7 @@ import numpy as np
 import yfinance as yf
 import pandas as pd
 from sentence_transformers import SentenceTransformer
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from rank_bm25 import BM25Okapi
 
 # Check if FAISS is installed
@@ -39,12 +39,16 @@ def download_financial_statements(ticker):
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "distilgpt2"  # Use a smaller model
+llm_model = "distilgpt2"  # Smaller and faster model
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
-# Create a text generation pipeline
-generator = pipeline("text-generation", model=llm, tokenizer=tokenizer)
+# Function to generate response using LLM
+def generate_response(prompt, max_length=100):
+    inputs = tokenizer(prompt, return_tensors="pt")
+    outputs = llm.generate(inputs["input_ids"], max_length=max_length, num_return_sequences=1)
+    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return response
 
 # Function to retrieve relevant chunks using hybrid search
 def hybrid_retrieval(query, chunks, top_k=3):
@@ -103,7 +107,7 @@ if query:
             # Generate response using LLM
             context = " ".join(retrieved_chunks)
             prompt = f"Question: {query}\nContext: {context}\nAnswer:"
-            response = generator(prompt, max_length=100, num_return_sequences=1)[0]["generated_text"]
+            response = generate_response(prompt, max_length=100)
             
             # Display response
             st.write("**Answer:**", response)
