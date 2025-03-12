@@ -1,0 +1,8 @@
+streamlit
+yfinance
+pandas
+faiss-cpu
+sentence-transformers
+transformers
+rank_bm25
+numpy
