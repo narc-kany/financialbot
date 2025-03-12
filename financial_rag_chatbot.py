@@ -38,8 +38,7 @@ def test_download_financial_statements():
     for path in paths:
         print(f"- {path}: Exists? {os.path.exists(path)}")
     
-    print("
-Complete File Structure:")
+    print("Complete File Structure:")
     for root, dirs, files in os.walk("."):
         for file in files:
             print(os.path.join(root, file))
