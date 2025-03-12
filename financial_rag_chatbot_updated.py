@@ -40,7 +40,12 @@ def preprocess_financial_data(financial_data):
     # Convert financial data into readable sentences
     sentences = []
     for index, row in financial_data.iterrows():
-        sentence = f"In {row['Date']}, the company reported revenue of {row['Revenue']} and net income of {row['Net Income']}."
+        # Use the correct column names
+        date = row.get('Date', 'Unknown Date')  # Replace 'Date' with the correct column name
+        revenue = row.get('Total Revenue', 'Unknown Revenue')  # Replace 'Total Revenue' with the correct column name
+        net_income = row.get('Net Income', 'Unknown Net Income')  # Replace 'Net Income' with the correct column name
+        
+        sentence = f"In {date}, the company reported revenue of {revenue} and net income of {net_income}."
         sentences.append(sentence)
     return sentences
 
@@ -108,6 +113,7 @@ if query:
         if os.path.exists(income_stmt_path):
             # Read financial data
             financial_data = pd.read_csv(income_stmt_path)
+            print(financial_data.columns)  # Debug: Print column names
             chunks = preprocess_financial_data(financial_data)
             
             # Build FAISS index
