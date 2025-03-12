@@ -55,7 +55,7 @@ test_download_financial_statements()
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "mistralai/Mistral-7B-Instruct-v0.1"
+llm_model = "distilgpt2"
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
