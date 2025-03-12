@@ -35,11 +35,20 @@ def download_financial_statements(ticker):
     
     return income_stmt_path, balance_sheet_path, cash_flow_path
 
+# Function to preprocess financial data
+def preprocess_financial_data(financial_data):
+    # Convert financial data into readable sentences
+    sentences = []
+    for index, row in financial_data.iterrows():
+        sentence = f"In {row['Date']}, the company reported revenue of {row['Revenue']} and net income of {row['Net Income']}."
+        sentences.append(sentence)
+    return sentences
+
 # Load embedding model
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "gpt2"  # Smaller and widely available model
+llm_model = "EleutherAI/gpt-neo-125M"  # More capable model
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
@@ -99,7 +108,7 @@ if query:
         if os.path.exists(income_stmt_path):
             # Read financial data
             financial_data = pd.read_csv(income_stmt_path)
-            chunks = financial_data.to_string().split("\n")  # Convert to text chunks
+            chunks = preprocess_financial_data(financial_data)
             
             # Build FAISS index
             chunk_embeddings = embed_model.encode(chunks)
@@ -113,7 +122,12 @@ if query:
             # Generate response using LLM
             max_context_length = 512  # Adjust based on the model's max sequence length
             context = " ".join(retrieved_chunks)[:max_context_length]
-            prompt = f"Question: {query}\nContext: {context}\nAnswer:"
+            prompt = f"""
+            Question: {query}
+            Context: {context}
+            Based on the context above, answer the question concisely and accurately.
+            Answer:
+            """
             response = generate_response(prompt, max_length=100)
             
             # Display response
