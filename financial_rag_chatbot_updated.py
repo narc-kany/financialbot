@@ -39,7 +39,7 @@ def download_financial_statements(ticker):
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "gpt2"  # Use a smaller model
+llm_model = "distilgpt2"  # Use a smaller model
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
