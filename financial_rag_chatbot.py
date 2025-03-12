@@ -1,13 +1,18 @@
-
 import os
 import streamlit as st
-import faiss
 import numpy as np
 import yfinance as yf
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from rank_bm25 import BM25Okapi
+
+# Check if FAISS is installed
+try:
+    import faiss
+except ImportError:
+    st.error("FAISS is not installed. Please install it using `pip install faiss-cpu`.")
+    st.stop()
 
 # Function to download financial statements
 def download_financial_statements(ticker):
@@ -38,7 +43,7 @@ def test_download_financial_statements():
     for path in paths:
         print(f"- {path}: Exists? {os.path.exists(path)}")
     
-    print("Complete File Structure:")
+    print("\nComplete File Structure:")
     for root, dirs, files in os.walk("."):
         for file in files:
             print(os.path.join(root, file))
@@ -50,7 +55,7 @@ test_download_financial_statements()
 embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 # Load LLM (small open-source model)
-llm_model = "distilgpt2"
+llm_model = "mistralai/Mistral-7B-Instruct-v0.1"
 tokenizer = AutoTokenizer.from_pretrained(llm_model)
 llm = AutoModelForCausalLM.from_pretrained(llm_model)
 
